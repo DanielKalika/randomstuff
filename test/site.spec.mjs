@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { playerFixture, expectFittedSurface, expectInsidePlayer, clickSourceControl } from './player-fixture.mjs';
 
 // These are local UI fixtures, not catalog entries or evidence of live playback.
 const movie = {
@@ -32,7 +33,7 @@ async function fixtures(page, { catalogFailures = 0, metadataFailures = 0 } = {}
         return route.fulfill({
           status: 200,
           contentType: 'text/html',
-          body: '<!doctype html><html lang="en"><title>Fixture player</title><body><p>Local Kinopk embed fixture. No video is loaded.</p></body></html>',
+          body: playerFixture('Local Kinopk embed fixture. No video is loaded.'),
         });
       }
       blocked.push(url.href);
@@ -233,4 +234,74 @@ test('mobile catalog and watch layouts fit the viewport and support keyboard sea
   await page.keyboard.press('Enter');
   await expect(page.getByTitle('Kinopk video player')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+for (const viewport of [{ width: 1440, height: 1000 }, { width: 375, height: 812 }]) {
+  test(`fitted source layout preserves controls and provider access at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    const { embeds, requests } = await fixtures(page, { metadataFailures: 1 });
+    await page.goto('/watch/258687');
+    await expect(page.frameLocator('iframe').getByText('Local Kinopk embed fixture. No video is loaded.')).toBeVisible();
+    const frame = await page.getByTitle('Kinopk video player').elementHandle();
+    const source = page.frameLocator('iframe[title="Kinopk video player"]');
+    const options = page.locator('#player-options');
+    await expect(options).toHaveAccessibleName('Player options');
+    await expect(options).toHaveAttribute('aria-expanded', 'false');
+    await expectFittedSurface(page);
+    for (const name of ['[Fixture] Soundtrack', '[Fixture] Fullscreen control']) {
+      await expectInsidePlayer(page, source.getByRole('button', { name, exact: true }));
+      await clickSourceControl(page, source.getByRole('button', { name, exact: true }));
+    }
+    await expect(source.locator('.fixture-video')).toHaveAttribute('data-audio', 'original');
+    await expect(source.locator('.fixture-video')).toHaveAttribute('data-fullscreen', 'requested');
+
+    await options.focus();
+    await page.keyboard.press('Enter');
+    await expect(options).toHaveAttribute('aria-expanded', 'true');
+    await expect(options).toHaveAccessibleName('Back to video');
+    const provider = source.getByRole('combobox', { name: '[Fixture] Provider' });
+    await expectInsidePlayer(page, provider);
+    await clickSourceControl(page, provider);
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+    await expect(provider).toHaveValue('other');
+    await options.focus();
+    await page.keyboard.press('Space');
+    await expect(options).toHaveAttribute('aria-expanded', 'false');
+    await expectFittedSurface(page);
+
+    // Exercise the same mounted iframe across the desktop/mobile breakpoint.
+    await page.setViewportSize(viewport.width > 650 ? { width: 375, height: 812 } : { width: 1440, height: 1000 });
+    await expectFittedSurface(page);
+    expect(await frame.evaluate((node) => node.isConnected)).toBe(true);
+    await expect(page.getByTitle('Kinopk video player')).toHaveAttribute('src', playerUrl);
+    expect(embeds).toEqual([playerUrl]);
+    expect(requests.some((url) => url.pathname.startsWith('/api/player/'))).toBe(false);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}
+
+test('keyboard entry reveals the source toolbar before its provider control receives focus', async ({ page }) => {
+  const { embeds } = await fixtures(page);
+  await page.goto('/watch/258687');
+  const provider = page.frameLocator('iframe').getByRole('combobox', { name: '[Fixture] Provider' });
+  await expectFittedSurface(page);
+  await page.getByRole('link', { name: 'Back to the catalog' }).focus();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#player-options')).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#player-options')).toHaveAccessibleName('Back to video');
+  await expect(provider).toBeFocused();
+  await expectInsidePlayer(page, provider);
+  await page.keyboard.press('End');
+  await expect(provider).toHaveValue('other');
+  const options = page.locator('#player-options');
+  await options.focus();
+  await page.keyboard.press('Space');
+  await expect(options).toHaveAttribute('aria-expanded', 'false');
+  await page.keyboard.press('Shift+Tab');
+  await expect(options).toHaveAttribute('aria-expanded', 'true');
+  const lastControl = page.frameLocator('iframe').getByRole('button', { name: '[Fixture] Fullscreen control', exact: true });
+  await expect(lastControl).toBeFocused();
+  await expectInsidePlayer(page, lastControl);
+  expect(embeds).toEqual([playerUrl]);
 });

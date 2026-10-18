@@ -166,9 +166,36 @@ async function renderCatalog(signal) {
   if (currentRoute().hash === '#catalog') document.querySelector('#catalog')?.scrollIntoView();
 }
 
+function fitSourcePlayer(area, signal) {
+  // Kinopk's public embed has a 900px player and 129px of source-page header.
+  // Keep that legitimate page intact and frame its video area. The options
+  // view reveals the same page without reloading or changing the provider.
+  const update = () => {
+    if (signal.aborted) return;
+    const width = area.clientWidth;
+    if (!width) return;
+    const sourceWidth = Math.min(width, 900);
+    const scale = width / sourceWidth;
+    const sourceHeader = 129;
+    const sourceHeight = sourceHeader + sourceWidth * 9 / 16;
+    area.style.setProperty('--source-width', `${sourceWidth}px`);
+    area.style.setProperty('--source-height', `${sourceHeight}px`);
+    area.style.setProperty('--source-scale', scale);
+    area.style.setProperty('--source-header', `${sourceHeader * scale}px`);
+    area.style.setProperty('--video-height', `${width * 9 / 16}px`);
+    area.style.setProperty('--page-height', `${sourceHeight * scale}px`);
+  };
+  const observer = new ResizeObserver(update);
+  observer.observe(area);
+  signal.addEventListener('abort', () => observer.disconnect(), { once: true });
+  update();
+}
+
 async function renderWatch(id, signal) {
   document.title = 'Watch — Original';
-  app.innerHTML = `<section class="watch-section"><a class="back-link" href="/">${icon('back')} Back to the catalog</a><div class="watch-heading"><div><p class="eyebrow muted">NOW SHOWING</p><h1 id="watch-title">${isStaticPreview ? `Kinopk title #${id}` : 'Loading your title…'}</h1><p id="watch-meta" class="watch-meta"></p></div><span class="player-tag">KINOPK PLAYER</span></div><div class="player-area" id="player-area" aria-busy="true"></div><div class="player-instructions"><p>Choose <strong>Alloha</strong> in the player selector if needed. Select <strong>Original / Оригинальный</strong> in the soundtrack menu, then press Play.</p><button class="button secondary" id="reload-player" type="button">${icon('refresh')}Reload player</button></div><p class="player-status" id="player-status" role="status">Requesting the embedded player…</p><div class="watch-audio">${icon('sound')}<div><strong>Original is your preferred soundtrack</strong><p>Automatic audio selection is not connected yet. Use the soundtrack menu inside the player.</p></div><span class="outline-tag">NOT APPLIED</span></div><div class="watch-description" id="watch-description"></div><a class="source-watch" href="https://kinopk.web.app/movie/${encodeURIComponent(id)}" target="_blank" rel="noopener noreferrer">View this title on Kinopk ${icon('external')}</a><p class="player-help">A chat preview or browser policy can block this player. Open the hosted site in a normal browser tab, or use the Kinopk link above. Some privacy settings also restrict embedded sites’ storage.</p></section>`;
+  app.innerHTML = `<section class="watch-section"><a class="back-link" href="/">${icon('back')} Back to the catalog</a><div class="watch-heading"><div><p class="eyebrow muted">NOW SHOWING</p><h1 id="watch-title">${isStaticPreview ? `Kinopk title #${id}` : 'Loading your title…'}</h1><p id="watch-meta" class="watch-meta"></p></div><span class="player-tag">KINOPK PLAYER</span></div><div class="player-area" id="player-area" aria-busy="true"></div><div class="player-instructions"><p>Select <strong>Original / Оригинальный</strong> in the soundtrack menu, then press Play. Use <strong>Player options</strong> to choose Alloha or another provider.</p><div class="player-actions"><button class="button secondary" id="player-options" type="button" aria-expanded="false" aria-controls="player-area">Player options</button><button class="button secondary" id="reload-player" type="button">${icon('refresh')}Reload player</button></div></div><p class="player-status" id="player-status" role="status">Requesting the embedded player…</p><div class="watch-audio">${icon('sound')}<div><strong>Original is your preferred soundtrack</strong><p>Automatic audio selection is not connected yet. Use the soundtrack menu inside the player.</p></div><span class="outline-tag">NOT APPLIED</span></div><div class="watch-description" id="watch-description"></div><a class="source-watch" href="https://kinopk.web.app/movie/${encodeURIComponent(id)}" target="_blank" rel="noopener noreferrer">View this title on Kinopk ${icon('external')}</a><p class="player-help">A chat preview or browser policy can block this player. Open the hosted site in a normal browser tab, or use the Kinopk link above. Some privacy settings also restrict embedded sites’ storage. If the video is misaligned, use Player options to show the full embedded page.</p></section>`;
+  const playerArea = app.querySelector('#player-area');
+  fitSourcePlayer(playerArea, signal);
   const frame = document.createElement('iframe');
   frame.src = `https://kinopk.web.app/embed/${id}`;
   frame.title = 'Kinopk video player';
@@ -181,7 +208,24 @@ async function renderWatch(id, signal) {
     app.querySelector('#player-status').textContent = 'Player requested. A blocked message means playback is unavailable in this viewer.';
     announcer.textContent = 'Player requested. Availability and playback have not been verified. Automatic soundtrack selection is not applied.';
   });
-  app.querySelector('#player-area').replaceChildren(frame);
+  playerArea.replaceChildren(frame);
+  const optionsButton = app.querySelector('#player-options');
+  const showOptions = (expanded) => {
+    playerArea.classList.toggle('is-options', expanded);
+    optionsButton.setAttribute('aria-expanded', String(expanded));
+    optionsButton.textContent = expanded ? 'Back to video' : 'Player options';
+  };
+  optionsButton.addEventListener('click', () => {
+    showOptions(!playerArea.classList.contains('is-options'));
+  });
+  // Reveal the source toolbar before Tab crosses into the iframe. Checking
+  // focus afterward races cross-process frame navigation in some browsers.
+  const beforePlayer = app.querySelector('.watch-section .back-link');
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab' || event.defaultPrevented) return;
+    if ((!event.shiftKey && event.target === beforePlayer)
+      || (event.shiftKey && event.target === optionsButton)) showOptions(true);
+  }, { signal });
   app.querySelector('#reload-player').addEventListener('click', () => {
     app.querySelector('#player-area').setAttribute('aria-busy', 'true');
     app.querySelector('#player-status').textContent = 'Reloading the embedded player page…';

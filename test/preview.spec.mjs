@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { playerFixture, expectFittedSurface, expectInsidePlayer, clickSourceControl } from './player-fixture.mjs';
 
 const preview = new URL('../dist/index.html', import.meta.url);
 const playback = new URL('../dist/playback.html', import.meta.url);
@@ -71,7 +72,7 @@ for (const mode of ['standalone document', 'HTML visualization']) {
       requests.push(url);
       if (/^https:\/\/kinopk\.web\.app\/embed\/[1-9]\d{0,14}$/.test(url) && request.resourceType() === 'document') {
         embeds.push(url);
-        return route.fulfill({ contentType: 'text/html', body: '<!doctype html><html lang="en"><title>Public embed fixture</title><body><p>Local public embed fixture; no stream loaded.</p></body></html>' });
+        return route.fulfill({ contentType: 'text/html', body: playerFixture('Local public embed fixture; no stream loaded.') });
       }
       return route.abort('blockedbyclient');
     });
@@ -87,6 +88,18 @@ for (const mode of ['standalone document', 'HTML visualization']) {
     await expect(page.frameLocator('iframe').getByText('Local public embed fixture; no stream loaded.')).toBeVisible();
     await expect(page.locator('.watch-audio')).toContainText('NOT APPLIED');
     await expect(page.locator('#announcer')).toContainText('Availability and playback have not been verified');
+    expect(embeds).toEqual(['https://kinopk.web.app/embed/258687']);
+    await expectFittedSurface(page);
+    const options = page.getByRole('button', { name: 'Player options', exact: true });
+    await options.click();
+    const provider = page.frameLocator('iframe').getByRole('combobox', { name: '[Fixture] Provider' });
+    await expectInsidePlayer(page, provider);
+    await clickSourceControl(page, provider);
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+    await expect(provider).toHaveValue('other');
+    await page.getByRole('button', { name: 'Back to video', exact: true }).click();
+    await expectFittedSurface(page);
     expect(embeds).toEqual(['https://kinopk.web.app/embed/258687']);
 
     await page.getByRole('link', { name: 'Back to the catalog' }).click();

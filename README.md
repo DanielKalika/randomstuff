@@ -20,9 +20,13 @@ The server listens on port 3000. `PORT` and `HOST` can override its address. `np
 npm run build
 ```
 
-Open `dist/playback.html`. Paste a Kinopk movie URL and click **Open player**, or use **Try the movie you shared** to open title 258687. Choose **Alloha** in the embedded player selector if needed, choose **Original / Оригинальный** in the soundtrack menu, and press Play.
+Open `dist/playback.html`. Paste a Kinopk movie URL and click **Open player**, or use **Try the movie you shared** to open title 258687. The video fills the designed player box. Choose **Original / Оригинальный** in the soundtrack menu and press Play. Use **Player options** to reveal Kinopk's provider selector and choose **Alloha** if needed, then **Back to video**. Switching these views preserves the same iframe and playback session.
 
 This file embeds the actual public page at `https://kinopk.web.app/embed/:id`. It needs Internet access but no application server, API key, or copied player token. It uses the source site's regular player controls; video is never downloaded or proxied through this project. The page does not claim video is playing just because its iframe loaded.
+
+The fitted view positions and scales that source page around its video area, removing the grey page surround. It retains Alloha's own controls; cross-origin browser rules prevent this site from restyling their internals. The fit follows the source's current 900px player width and 129px header. If Kinopk changes its layout or the video becomes misaligned, **Player options** reveals the full embedded page as a fallback.
+
+The fit was checked against the live source layout at desktop and mobile sizes, with provider playback blocked. Local browser tests also check visible controls, keyboard entry, resizing, and switching views without reloading. These layout checks do not establish media availability or Original audio playback.
 
 `dist/index.html` contains the full site layout and the same movie-link entry. Both generated files include styles, script, and icon. Their app navigation uses URL fragments. They do not call this project's metadata API; the full catalog is labeled disconnected. Opening a title explicitly loads the external live player page.
 
@@ -45,7 +49,7 @@ Use the public Pages HTTPS address in a normal browser tab to test the player. T
 - Responsive catalog, movie/series filters, pagination, search, and watch pages.
 - Server-side adapters for the same public metadata routes used by Kinopk: `/movies/navigator`, `/movies/search/`, `/movies/:id`, and `/players?kinopoisk=:id` on `https://api.kinobox.tv/api`.
 - Movie-link entry supporting source `/movie/:id`, `/film/:id`, and `/embed/:id` URLs; it rejects other origins and never accepts arbitrary iframe addresses.
-- Playback through the source's public embed page, with fullscreen permission, a reload control, and clear manual Alloha/Original instructions. The source player chooses its available providers.
+- Playback through the source's public embed page, with fullscreen permission, a reload control, and clear manual Alloha/Original instructions. A responsive fitted view fills the player box; the options view restores the source toolbar without reloading. The source player chooses its available providers.
 - Optional title details load independently; a metadata failure does not prevent the live iframe from opening.
 - Short-lived metadata caching; errors are not cached. Media streams are never fetched or proxied by this server.
 
