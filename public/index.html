@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101411">
+    <meta name="description" content="Your personal window into the Kinopk catalog, with Alloha playback.">
+    <title>Original — Your personal cinema</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="/" aria-label="Original home"><span class="brand-icon" aria-hidden="true">o</span><span>original<span class="brand-dot">.</span></span></a>
+        <nav aria-label="Main navigation" class="main-nav">
+          <a href="/" data-category="all">Discover</a>
+          <a href="/?type=films" data-category="films">Movies</a>
+          <a href="/?type=series" data-category="series">Series</a>
+        </nav>
+        <a href="https://kinopk.web.app/" target="_blank" rel="noopener noreferrer" class="source-link">Kinopk <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17 17 7M7 7h10v10"/></svg></a>
+      </header>
+      <main id="app" tabindex="-1"></main>
+      <footer class="site-footer"><span class="footer-wordmark">original.</span><span>Your catalog. Their player. Your own pace.</span><span>Catalog from <a href="https://kinopk.web.app/" target="_blank" rel="noopener noreferrer">Kinopk <svg aria-hidden="true" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17 17 7M7 7h10v10"/></svg></a></span></footer>
+    </div>
+    <div id="announcer" class="visually-hidden" role="status" aria-live="polite"></div>
+  </body>
+</html>
