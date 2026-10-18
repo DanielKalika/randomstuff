@@ -32,6 +32,22 @@ The fit was checked against the live source layout at desktop and mobile sizes, 
 
 An HTML viewer, private-browsing mode, or strict browser privacy settings may block nested players or their storage. The page includes an ordinary link back to the title on Kinopk if embedding is unavailable. Do not disable browser security features to make it work.
 
+## Alternative provider trial
+
+`npm run build` also produces self-contained `dist/vidlink.html`, using the separate template and script in `public/vidlink.html` and `public/vidlink.js`. The development server serves `/vidlink.html`. This trial does not replace the Kinopk/Alloha integration or depend on its metadata API.
+
+VidLink was selected for this experiment because its current public embed, appearance, and event documentation was accessible. This is a documented integration candidate, not a measured claim that it is the most reliable provider or supports 4K. Official documentation: https://vidlink.pro/.
+
+Use **Watch Interstellar**, **Furiosa: A Mad Max Saga**, or paste a TMDB movie/series link or TMDB ID. Series need a season and episode. VidLink uses TMDB IDs, whereas the original Kinopk flow uses Kinopoisk IDs. The shared movie maps from Kinopoisk **258687** to TMDB **157336**; [Wikidata's Interstellar record](https://www.wikidata.org/wiki/Q13417189) lists both identifiers. Furiosa **786892** is the provider's documented example. Other titles are labeled with their TMDB ID because this version does not fetch title metadata or offer a connected catalog.
+
+**Player appearance** sets documented accent/icon colors, `vid`/`default` icons, and `default`/`jw` player styles through the provider's URL parameters. Applying a change reloads the iframe; there is no promise to preserve playback position. Autoplay is explicitly disabled. The iframe fills its own 16:9 box without the Kinopk page or its cropping rules. No guessed audio parameter, raw stream URL, referrer spoof, or media proxy is used. Original audio remains a manual player choice, and 4K availability is unverified.
+
+The provider's documented `PLAYER_EVENT` messages are accepted only from the exact current iframe and `https://vidlink.pro`, with a matching title/episode and finite time values. The unusual `mtmdbId` field spelling follows the published documentation. Status text identifies progress as **provider reported**; an iframe load or message is not proof of actual media resolution or audio. Reloads and invalid deep links discard the old iframe and its listeners. No bulk provider progress data is persisted.
+
+Initial cloud-browser checks on October 18, 2026 did not establish playback: the ordinary local-parent embed displayed **Please Disable Sandbox** even though this project set no iframe sandbox; the normal direct Interstellar page reported content unavailable. The provider's Furiosa example displayed controls and a 1080p option, but its video stayed at time zero with no decoded dimensions after a normal Play attempt. These are environment-specific observations, not proof of a global outage. VidFast's ordinary browser attempt was explicitly blocked and VidKing's documented embed was unreachable through the environment's network; neither supplied working evidence for switching this trial. Preserve browser/TLS protections and provider controls when diagnosing availability.
+
+The trial offers an ordinary **Open on VidLink** link and a separate **Alloha version** link. The latter opens the same Interstellar on the existing site for the mapped demo, or its entry page for another TMDB title. Public deployment should include `vidlink.html` alongside `index.html`, `playback.html`, and `.nojekyll` on `gh-pages`.
+
 ## GitHub Pages
 
 The user selected GitHub Pages in `DanielKalika/randomstuff`. The Pages branch is `gh-pages`, containing the built single-file pages and `.nojekyll`. Publish that branch from its root. The application source is on `codex/original-playback-site`; the existing `main` branch and its user files are preserved.
@@ -76,7 +92,7 @@ npm test
 npm run test:browser
 ```
 
-Server tests exercise local upstream fixtures, normalization, request validation, caching and recovery, timeouts, and static-file safety. Browser tests cover catalog navigation, Unicode/punctuation search, pagination, history, source iframe insertion, metadata failure, URL validation, reload controls, honest audio status, standalone playback routing, and mobile keyboard use. They use explicitly labeled fixtures and block external media. Passing them does **not** establish live provider access or Original audio automation; the separate live check is described above.
+Server tests exercise local upstream fixtures, normalization, request validation, caching and recovery, timeouts, and static-file safety. Browser tests cover catalog navigation, Unicode/punctuation search, pagination, history, source iframe insertion, metadata failure, URL validation, reload controls, honest audio status, standalone playback routing, and mobile keyboard use. The VidLink tests additionally cover TMDB namespaces, movie/TV deep links, documented theme parameters, message origin/source/schema checks, stale frames, and direct player sizing. They use explicitly labeled fixtures and block external media. Passing them does **not** establish live provider access or Original audio automation; the separate live checks are described above.
 
 Browser tests use `/usr/bin/chromium` in this cloud environment. On another machine, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to an installed Chromium binary, or install Playwright's browser with `npx playwright install chromium`.
 

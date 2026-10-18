@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 
 export default defineConfig({
   testDir: './test',
-  testMatch: ['site.spec.mjs', 'preview.spec.mjs'],
+  testMatch: ['site.spec.mjs', 'preview.spec.mjs', 'vidlink.spec.mjs'],
   fullyParallel: true,
   workers: 2,
   timeout: 30_000,

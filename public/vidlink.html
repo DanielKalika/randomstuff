@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101411">
+    <meta name="description" content="Try a different movie player with colors and controls that fit your cinema.">
+    <title>A different player — Original</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/vidlink.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header trial-header">
+        <a class="brand" href="./vidlink.html" aria-label="Original player trial"><span class="brand-icon" aria-hidden="true">o</span><span>original<span class="brand-dot">.</span></span></a>
+        <span class="trial-provider-badge">VIDLINK EDITION</span>
+        <a class="trial-header-link" href="./playback.html" target="_blank" rel="noopener noreferrer">Alloha version ↗</a>
+      </header>
+      <main class="trial-main">
+        <section class="trial-intro" aria-labelledby="trial-heading">
+          <p class="eyebrow">A DIFFERENT WAY TO WATCH</p>
+          <h1 id="trial-heading">Your cinema.<br><em>A fresh set of controls.</em></h1>
+          <p>Try VidLink with your own colors and icon style. Start with the movie you shared, or open another title from TMDB.</p>
+          <button class="button primary" id="trial-example" type="button">Watch Interstellar <span aria-hidden="true">▶</span></button>
+          <a class="trial-demo-source" href="https://www.themoviedb.org/movie/157336-interstellar" target="_blank" rel="noopener noreferrer">Interstellar · 2014 · TMDB ↗</a>
+          <p class="trial-other-example">Another title to try: <button id="trial-provider-example" type="button">Furiosa: A Mad Max Saga</button></p>
+        </section>
+
+        <section class="open-movie trial-open" aria-labelledby="trial-open-heading">
+          <div><p class="eyebrow muted">SOMETHING ELSE IN MIND?</p><h2 id="trial-open-heading">Open a title.</h2><p>Use a movie or series link from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">The Movie Database ↗</a>.</p></div>
+          <form id="trial-title-form" novalidate>
+            <label for="trial-title">TMDB link or ID</label>
+            <div class="movie-link-input"><input id="trial-title" name="title" type="text" inputmode="url" autocomplete="off" placeholder="https://www.themoviedb.org/movie/…" aria-describedby="trial-title-error"><button class="button primary" type="submit">Open player</button></div>
+            <div class="trial-title-options"><label for="trial-kind">Title type<select id="trial-kind" name="kind"><option value="movie">Movie</option><option value="tv">Series</option></select></label><div id="trial-episode-fields" class="trial-episode-fields" hidden><label for="trial-season">Season<input id="trial-season" type="number" min="1" max="9999" value="1"></label><label for="trial-episode">Episode<input id="trial-episode" type="number" min="1" max="9999" value="1"></label></div></div>
+            <p class="form-error" id="trial-title-error" role="alert"></p>
+          </form>
+        </section>
+
+        <details id="trial-appearance" class="trial-appearance">
+          <summary>Player appearance <span>Colors &amp; icons</span></summary>
+          <form id="trial-appearance-form"><label for="trial-accent">Accent color<input id="trial-accent" type="color" value="#c0e994"></label><label for="trial-icons">Button icons<select id="trial-icons"><option value="vid">VidLink icons</option><option value="default">Classic icons</option></select></label><label for="trial-engine">Player style<select id="trial-engine"><option value="default">VidLink</option><option value="jw">JW Player</option></select></label><button class="button secondary" type="submit">Apply and reload player</button><p>Settings apply when you open a title. Changing the appearance during playback reloads the player. Available styling depends on the selected player style.</p></form>
+        </details>
+
+        <section id="trial-watch" class="trial-watch" aria-labelledby="trial-watch-title" hidden>
+          <div class="watch-heading"><div><p class="eyebrow muted">NOW SHOWING</p><h2 id="trial-watch-title"></h2><p id="trial-watch-meta" class="watch-meta"></p></div><span class="player-tag">VIDLINK PLAYER</span></div>
+          <div id="trial-player" class="trial-player" aria-busy="false"></div>
+          <div class="player-instructions"><p>Press Play inside the player. Choose Original audio and your preferred quality from its menus when offered.</p><button class="button secondary" id="trial-reload" type="button">Reload player</button></div>
+          <p id="trial-status" class="player-status" role="status"></p><p id="trial-progress" class="trial-progress"></p>
+          <div class="trial-capabilities"><p><strong>Audio</strong><span>Choose in the player</span></p><p><strong>Resolution</strong><span>4K availability unverified</span></p><p><strong>Your look</strong><span>Custom colors &amp; icons requested</span></p></div>
+          <div class="trial-fallbacks"><a id="trial-provider-link" class="button secondary" target="_blank" rel="noopener noreferrer">Open on VidLink ↗</a><a id="trial-original-link" href="./playback.html" target="_blank" rel="noopener noreferrer">Try the Alloha version ↗</a></div>
+          <p class="player-help">If the embed displays an error, try opening it on VidLink. Loading the player page does not confirm video playback. Original audio and 4K depend on the title and source.</p>
+        </section>
+      </main>
+      <footer class="site-footer"><span class="footer-wordmark">original.</span><span>Your movie night, your own pace.</span><a href="https://vidlink.pro/" target="_blank" rel="noopener noreferrer">Player documentation ↗</a></footer>
+    </div>
+  </body>
+</html>
