@@ -48,6 +48,8 @@ Initial cloud-browser checks on October 18, 2026 did not establish playback: the
 
 The trial offers an ordinary **Open on VidLink** link and a separate **Alloha version** link. The latter opens the same Interstellar on the existing site for the mapped demo, or its entry page for another TMDB title. Public deployment should include `vidlink.html` alongside `index.html`, `playback.html`, and `.nojekyll` on `gh-pages`.
 
+The trial is deployed at **https://danielkalika.github.io/randomstuff/vidlink.html**. GitHub Pages completed its build and the served HTML matched the built trial. Final hosted cloud-browser checks on both Interstellar and Furiosa got HTTP200 for the site and provider iframe, but the provider DOM displayed **Please Disable Sandbox** and the video area looked black, with no video element, playback events, or progress. The iframe has no sandbox attribute. No guard or browser-security change was attempted. Playback and 4K are still unverified; the user was asked to try the concrete hosted trial in their normal browser, as their previous Alloha-hosted workflow succeeded there. All26 browser fixture tests passed; this does not override the live provider failure.
+
 ## GitHub Pages
 
 The user selected GitHub Pages in `DanielKalika/randomstuff`. The Pages branch is `gh-pages`, containing the built single-file pages and `.nojekyll`. Publish that branch from its root. The application source is on `codex/original-playback-site`; the existing `main` branch and its user files are preserved.
