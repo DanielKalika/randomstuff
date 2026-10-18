@@ -32,7 +32,9 @@ An HTML viewer, private-browsing mode, or strict browser privacy settings may bl
 
 The user selected GitHub Pages in `DanielKalika/randomstuff`. The Pages branch is `gh-pages`, containing the built single-file pages and `.nojekyll`. Publish that branch from its root. The application source is on `codex/original-playback-site`; the existing `main` branch and its user files are preserved.
 
-The code and built branch have been pushed. The integration could not enable the Pages site: GitHub returned HTTP 403, `Resource not accessible by integration`. The repository owner can complete that one-time step in **Settings → Pages → Build and deployment**: choose **Deploy from a branch**, branch **gh-pages**, folder **/(root)**, then **Save**. Publication and live HTTPS playback must be verified after that step; a successful Git push does not establish that the website is online.
+The live playback entry is **https://danielkalika.github.io/randomstuff/playback.html**. Pages is enabled and the served HTML was verified to match the built file. Open this HTTPS address directly in a normal browser tab; the chat's file visualization is a separate context and can block the embedded player.
+
+The integration could push the source and built branch, but GitHub rejected its initial request to enable Pages with HTTP 403, `Resource not accessible by integration`. Pages was then enabled through repository settings. For future one-time setup or changes, use **Settings → Pages → Build and deployment**: choose **Deploy from a branch**, branch **gh-pages**, folder **/(root)**, then **Save**. A successful Git push alone does not establish that the website is online.
 
 Use the public Pages HTTPS address in a normal browser tab to test the player. The chat visualization can block external iframe content even when the same site works on ordinary hosting. An iframe load event is not confirmation that the provider page or video is available.
 
